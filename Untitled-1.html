@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body>
+    <div id='app'>
+        <h3>姓名</h3>
+        <p>{{name}}</p>
+        <h3>年龄</h3>
+        <p>{{age}}</p>
+    </div>
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let opt = { el: '#app', data: { name: '检索中...', age: 30 } };
+        let vm = new Vue(opt);
+        setTimeout(() => {
+            opt.data.name = 'liuttttao';
+        }, 2000);
+        setTimeout(() => {
+            opt.data.age = '20';
+        }, 3000);
+    })
+
+
+    class Vue {
+        constructor(opt) {
+            this.opt = opt;
+            debugger
+            this.observe(opt.data);
+            let root = document.querySelector(opt.el);
+            this.compile(root);
+        }
+
+        observe(data) {
+            let obv = new Observer();
+            Object.keys(data).forEach(key => {
+                data["_" + key] = data[key];
+
+                Object.defineProperty(data, key, {
+                    get(type) {
+                        Observer.target && obv.addSubNode(Observer.type, Observer.target);
+                        return data["_" + key];
+                    },
+                    set(newVal) {
+                        obv.update(key, newVal);
+                        data["_" + key] = newVal;
+                    }
+                })
+            })
+        }
+
+        compile(node) {
+            [].forEach.call(node.childNodes, child => {
+                if (!child.firstElementChild && /\{\{(.*)\}\}/.test(child.innerHTML)) {
+                    let key = RegExp.$1.trim();
+                    Observer.target = child;
+                    Observer.type = key;
+                    child.innerHTML = child.innerHTML.replace(new RegExp('\\{\\{\\s*' + key + '\\s*\\}\\}', 'gm'), this.opt.data[key]);
+                    Observer.type = null;
+                    Observer.target = null;
+                } else if (child.firstElementChild) {
+                    this.compile(child);
+                }
+            })
+        }
+
+
+    }
+    //观察者类
+    class Observer {
+        constructor() {
+            this.subNode = {};
+        }
+
+        addSubNode(type, node) {
+            this.subNode[type] = node
+        }
+
+        update(type, newVal) {
+            this.subNode[type].innerHTML = newVal;
+        }
+
+    }
+</script>
+
+</html>
