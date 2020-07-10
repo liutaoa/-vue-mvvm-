@@ -11,12 +11,14 @@
         <p>{{name}}</p>
         <h3>年龄</h3>
         <p>{{age}}</p>
+        <input type="text" id="ipt" onblur="changeName()"/>
     </div>
 </body>
 
 <script>
+    var opt = null;
     document.addEventListener('DOMContentLoaded', function () {
-        let opt = { el: '#app', data: { name: '检索中...', age: 30 } };
+        opt = { el: '#app', data: { name: '检索中...', age: 30 } };
         let vm = new Vue(opt);
         setTimeout(() => {
             opt.data.name = 'liuttttao';
@@ -26,11 +28,15 @@
         }, 3000);
     })
 
+    function changeName() {
+        let val = document.getElementById('ipt').value;
+        opt.data.name = val;
+    }
+
 
     class Vue {
         constructor(opt) {
             this.opt = opt;
-            debugger
             this.observe(opt.data);
             let root = document.querySelector(opt.el);
             this.compile(root);
